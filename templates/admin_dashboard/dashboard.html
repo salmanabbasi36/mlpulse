@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+{% load humanize %}
+{% block title %}Dashboard — MLPulse{% endblock %}
+{% block content %}
+<div class="dashboard-page">
+  <div class="container">
+    <div class="dashboard-header">
+      <h1>Admin Dashboard</h1>
+      <form method="post" action="{% url 'automation:trigger' %}">{% csrf_token %}
+        <button type="submit" class="btn btn-primary"><i class="fa fa-robot"></i> Generate post now</button>
+      </form>
+    </div>
+    <div class="stats-row">
+      <div class="stat-card"><div class="stat-num">{{ drafts|length }}</div><div class="stat-label">Drafts waiting</div></div>
+      <div class="stat-card"><div class="stat-num">{{ pending_submissions|length }}</div><div class="stat-label">Submissions pending</div></div>
+      <div class="stat-card"><div class="stat-num">{{ published_today }}</div><div class="stat-label">Published today</div></div>
+      <div class="stat-card"><div class="stat-num">{{ total_posts }}</div><div class="stat-label">Total articles</div></div>
+    </div>
+    <section class="dash-section">
+      <h2><i class="fa fa-file-alt"></i> AI-Generated Drafts</h2>
+      {% if drafts %}
+      <div class="dash-table">
+        {% for post in drafts %}
+        <div class="dash-row">
+          <div class="dash-row-info">
+            <div class="dash-row-title">{{ post.title }}</div>
+            <div class="dash-row-meta">
+              {% if post.category %}<span class="badge">{{ post.category.name }}</span>{% endif %}
+              <span>{{ post.created_at|naturaltime }}</span>
+              <span>{{ post.reading_time }} min read</span>
+              <span class="badge badge-ai">AI</span>
+            </div>
+          </div>
+          <div class="dash-row-actions">
+            <a href="{% url 'automation:preview_draft' post.pk %}" class="btn btn-sm btn-outline">Preview</a>
+            <form method="post" action="{% url 'automation:publish_post' post.pk %}" style="display:inline">{% csrf_token %}
+              <button type="submit" class="btn btn-sm btn-success">Publish</button>
+            </form>
+            <form method="post" action="{% url 'automation:delete_draft' post.pk %}" style="display:inline" onsubmit="return confirm('Delete?')">{% csrf_token %}
+              <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+            </form>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}<div class="empty-state">No drafts. Click "Generate post now" above or wait for the 4-hour scheduler.</div>{% endif %}
+    </section>
+    <section class="dash-section">
+      <h2><i class="fa fa-inbox"></i> User Submissions</h2>
+      {% if pending_submissions %}
+      <div class="dash-table">
+        {% for sub in pending_submissions %}
+        <div class="dash-row">
+          <div class="dash-row-info">
+            <div class="dash-row-title">{{ sub.title }}</div>
+            <div class="dash-row-meta"><span>by {{ sub.author_name }}</span><span>{{ sub.submitted_at|naturaltime }}</span>{% if sub.category %}<span class="badge">{{ sub.category.name }}</span>{% endif %}</div>
+          </div>
+          <div class="dash-row-actions">
+            <a href="{% url 'automation:preview_submission' sub.pk %}" class="btn btn-sm btn-outline">Review</a>
+            <form method="post" action="{% url 'automation:approve_submission' sub.pk %}" style="display:inline">{% csrf_token %}
+              <button type="submit" class="btn btn-sm btn-success">Approve</button>
+            </form>
+            <form method="post" action="{% url 'automation:reject_submission' sub.pk %}" style="display:inline">{% csrf_token %}
+              <button type="submit" class="btn btn-sm btn-danger">Reject</button>
+            </form>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}<div class="empty-state">No pending submissions.</div>{% endif %}
+    </section>
+  </div>
+</div>
+{% endblock %}

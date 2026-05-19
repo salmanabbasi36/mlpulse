@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}MLPulse — The Pulse of ML, AI & Data Science{% endblock %}</title>
+  <meta name="description" content="{% block meta_description %}MLPulse covers machine learning, AI, and data science — deep dives, research papers, and industry news updated every 4 hours.{% endblock %}">
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Merriweather:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+
+  <!-- Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+  <!-- Styles -->
+  {% load static %}
+  <link rel="stylesheet" href="{% static 'css/main.css' %}">
+
+  {% block extra_head %}{% endblock %}
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="navbar">
+  <div class="container nav-inner">
+    <a href="{% url 'blog:home' %}" class="nav-logo">
+      <span class="logo-pulse">ML</span><span class="logo-text">Pulse</span>
+    </a>
+
+    <div class="nav-links">
+      {% for cat in categories %}
+      <a href="{{ cat.get_absolute_url }}" class="nav-link">{{ cat.name }}</a>
+      {% endfor %}
+    </div>
+
+    <div class="nav-actions">
+      <a href="{% url 'blog:search' %}" class="nav-icon-btn" title="Search"><i class="fa fa-search"></i></a>
+      {% if user.is_authenticated %}
+        {% if user.is_staff %}
+        <a href="{% url 'automation:dashboard' %}" class="btn btn-sm btn-outline">Dashboard</a>
+        {% endif %}
+        <a href="{% url 'accounts:profile' user.username %}" class="nav-avatar">
+          <img src="{{ user.get_avatar }}" alt="{{ user.username }}">
+        </a>
+      {% else %}
+        <a href="{% url 'accounts:login' %}" class="btn btn-sm btn-outline">Sign in</a>
+        <a href="{% url 'submissions:submit' %}" class="btn btn-sm btn-primary">Write for us</a>
+      {% endif %}
+    </div>
+
+    <button class="nav-hamburger" id="navToggle"><i class="fa fa-bars"></i></button>
+  </div>
+</nav>
+
+<!-- MESSAGES -->
+{% if messages %}
+<div class="messages-bar">
+  <div class="container">
+    {% for msg in messages %}
+    <div class="message message-{{ msg.tags }}">{{ msg }}</div>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+
+<!-- MAIN -->
+<main>{% block content %}{% endblock %}</main>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="container footer-inner">
+    <div class="footer-brand">
+      <a href="{% url 'blog:home' %}" class="nav-logo">
+        <span class="logo-pulse">ML</span><span class="logo-text">Pulse</span>
+      </a>
+      <p>The pulse of machine learning, AI & data science.<br>Updated every 4 hours.</p>
+    </div>
+    <div class="footer-links">
+      <div>
+        <h4>Topics</h4>
+        {% for cat in categories %}
+        <a href="{{ cat.get_absolute_url }}">{{ cat.name }}</a>
+        {% endfor %}
+      </div>
+      <div>
+        <h4>MLPulse</h4>
+        <a href="{% url 'blog:archive' %}">Archive</a>
+        <a href="{% url 'submissions:submit' %}">Write for us</a>
+        <a href="{% url 'accounts:register' %}">Join</a>
+        <a href="/sitemap.xml">Sitemap</a>
+      </div>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <div class="container">
+      <span>&copy; 2025 MLPulse. Powered by AI, edited by humans.</span>
+    </div>
+  </div>
+</footer>
+
+<script src="{% static 'js/main.js' %}"></script>
+{% block extra_js %}{% endblock %}
+</body>
+</html>

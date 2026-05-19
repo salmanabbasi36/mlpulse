@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% load humanize %}
+{% block title %}Search — MLPulse{% endblock %}
+{% block content %}
+<div class="container" style="padding:60px 0 80px">
+  <h1 style="font-size:28px;font-weight:700;margin-bottom:8px">Search{% if query %}: "{{ query }}"{% endif %}</h1>
+  <form method="get" style="margin:24px 0">
+    <div style="display:flex;gap:12px">
+      <input type="text" name="q" value="{{ query }}" placeholder="Search articles..." class="form-control" style="max-width:480px">
+      <button type="submit" class="btn btn-primary">Search</button>
+    </div>
+  </form>
+  {% if page_obj %}
+  <p style="color:#6b7280;margin-bottom:24px">{{ page_obj.paginator.count }} result{{ page_obj.paginator.count|pluralize }}</p>
+  <div class="post-grid">
+    {% for post in page_obj %}
+    <article class="post-card">
+      <div class="card-body">
+        {% if post.category %}<a href="{{ post.category.get_absolute_url }}" class="category-badge-sm">{{ post.category.name }}</a>{% endif %}
+        <h3 class="card-title"><a href="{{ post.get_absolute_url }}">{{ post.title }}</a></h3>
+        <p class="card-excerpt">{{ post.excerpt|truncatechars:120 }}</p>
+        <div class="card-meta"><span>{{ post.published_at|naturalday }}</span><span class="dot">·</span><span>{{ post.reading_time }}m</span></div>
+      </div>
+    </article>
+    {% endfor %}
+  </div>
+  {% elif query %}
+  <div class="empty-state">No results for "{{ query }}"</div>
+  {% endif %}
+</div>
+{% endblock %}

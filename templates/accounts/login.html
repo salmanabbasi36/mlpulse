@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+{% block title %}Sign in — MLPulse{% endblock %}
+{% block content %}
+<div style="max-width:420px;margin:80px auto;padding:0 24px">
+  <h1 style="font-size:28px;font-weight:700;margin-bottom:8px">Sign in</h1>
+  <p style="color:#6b7280;margin-bottom:28px">Welcome back to MLPulse</p>
+  <form method="post">{% csrf_token %}
+    {% for field in form %}<div class="form-group">{{ field.label_tag }}{{ field }}</div>{% endfor %}
+    <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;margin-top:8px">Sign in</button>
+  </form>
+  <p style="margin-top:20px;font-size:14px;color:#6b7280">No account? <a href="{% url 'accounts:register' %}" style="color:#6366f1">Register</a></p>
+</div>
+{% endblock %}

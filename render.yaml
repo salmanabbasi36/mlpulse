@@ -1,0 +1,86 @@
+services:
+  # Web server
+  - type: web
+    name: mlpulse-web
+    runtime: python
+    buildCommand: "pip install -r requirements.txt && python manage.py collectstatic --no-input && python manage.py migrate"
+    startCommand: "gunicorn mlpulse.wsgi:application --workers 2 --bind 0.0.0.0:$PORT"
+    envVars:
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DEBUG
+        value: false
+      - key: ALLOWED_HOSTS
+        value: mlpulse.app,www.mlpulse.app
+      - key: SITE_URL
+        value: https://mlpulse.app
+      - key: DATABASE_URL
+        fromDatabase:
+          name: mlpulse-db
+          property: connectionString
+      - key: REDIS_URL
+        fromService:
+          name: mlpulse-redis
+          type: redis
+          property: connectionString
+      - key: ANTHROPIC_API_KEY
+        sync: false  # Set this manually in Render dashboard
+      - key: AUTO_PUBLISH
+        value: false  # Set to true to skip your review
+
+  # Celery worker
+  - type: worker
+    name: mlpulse-celery-worker
+    runtime: python
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "celery -A mlpulse worker --loglevel=info"
+    envVars:
+      - key: SECRET_KEY
+        fromService:
+          name: mlpulse-web
+          type: web
+          envVarKey: SECRET_KEY
+      - key: DATABASE_URL
+        fromDatabase:
+          name: mlpulse-db
+          property: connectionString
+      - key: REDIS_URL
+        fromService:
+          name: mlpulse-redis
+          type: redis
+          property: connectionString
+      - key: ANTHROPIC_API_KEY
+        sync: false
+
+  # Celery beat scheduler
+  - type: worker
+    name: mlpulse-celery-beat
+    runtime: python
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "celery -A mlpulse beat --loglevel=info -S django_celery_beat.schedulers:DatabaseScheduler"
+    envVars:
+      - key: SECRET_KEY
+        fromService:
+          name: mlpulse-web
+          type: web
+          envVarKey: SECRET_KEY
+      - key: DATABASE_URL
+        fromDatabase:
+          name: mlpulse-db
+          property: connectionString
+      - key: REDIS_URL
+        fromService:
+          name: mlpulse-redis
+          type: redis
+          property: connectionString
+      - key: ANTHROPIC_API_KEY
+        sync: false
+
+databases:
+  - name: mlpulse-db
+    plan: free
+
+services:
+  - type: redis
+    name: mlpulse-redis
+    plan: free

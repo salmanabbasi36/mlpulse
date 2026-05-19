@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+{% load humanize %}
+{% block title %}All articles — MLPulse{% endblock %}
+{% block content %}
+<div class="container" style="padding:60px 0 80px">
+  <h1 style="font-size:28px;font-weight:700;margin-bottom:32px">All articles</h1>
+  <div style="display:flex;flex-direction:column;gap:0">
+    {% for post in page_obj %}
+    <article style="display:flex;gap:24px;padding:20px 0;border-bottom:1px solid #e5e7eb;align-items:flex-start">
+      <span style="font-size:13px;color:#9ca3af;white-space:nowrap;min-width:90px;padding-top:4px">{{ post.published_at|date:"M j, Y" }}</span>
+      <div>
+        {% if post.category %}<a href="{{ post.category.get_absolute_url }}" class="category-badge-sm">{{ post.category.name }}</a>{% endif %}
+        <h3 style="font-size:16px;font-weight:600;margin-top:4px"><a href="{{ post.get_absolute_url }}">{{ post.title }}</a></h3>
+        <p style="font-size:13px;color:#6b7280;margin-top:4px">{{ post.reading_time }} min read · {{ post.views|intcomma }} views</p>
+      </div>
+    </article>
+    {% endfor %}
+  </div>
+  {% if page_obj.has_other_pages %}
+  <div style="display:flex;gap:8px;margin-top:40px;justify-content:center">
+    {% if page_obj.has_previous %}<a href="?page={{ page_obj.previous_page_number }}" class="btn btn-outline">← Previous</a>{% endif %}
+    {% if page_obj.has_next %}<a href="?page={{ page_obj.next_page_number }}" class="btn btn-outline">Next →</a>{% endif %}
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

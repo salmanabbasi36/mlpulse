@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+{% block title %}Preview: {{ post.title }}{% endblock %}
+{% block content %}
+<div class="container" style="padding:40px 0 80px">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:32px;padding-bottom:20px;border-bottom:1px solid #e5e7eb">
+    <a href="{% url 'automation:dashboard' %}" class="btn btn-outline">Back to dashboard</a>
+    <div style="display:flex;gap:12px">
+      <form method="post" action="{% url 'automation:publish_post' post.pk %}">{% csrf_token %}<button type="submit" class="btn btn-success">Publish now</button></form>
+      <form method="post" action="{% url 'automation:delete_draft' post.pk %}" onsubmit="return confirm('Delete?')">{% csrf_token %}<button type="submit" class="btn btn-danger">Delete</button></form>
+    </div>
+  </div>
+  <article style="max-width:780px;margin:0 auto">
+    {% if post.category %}<span class="category-badge" style="background:{{ post.category.color }}20;color:{{ post.category.color }}">{{ post.category.name }}</span>{% endif %}
+    <h1 style="font-size:36px;font-weight:800;margin:16px 0">{{ post.title }}</h1>
+    <p style="font-size:18px;color:#6b7280;margin-bottom:24px">{{ post.excerpt }}</p>
+    <div class="prose">{{ post.body|safe }}</div>
+  </article>
+</div>
+{% endblock %}

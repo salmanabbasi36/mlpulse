@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% block title %}Review: {{ sub.title }}{% endblock %}
+{% block content %}
+<div class="container" style="padding:40px 0 80px">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:32px;padding-bottom:20px;border-bottom:1px solid #e5e7eb">
+    <a href="{% url 'automation:dashboard' %}" class="btn btn-outline">Back</a>
+    <div style="display:flex;gap:12px">
+      <form method="post" action="{% url 'automation:approve_submission' sub.pk %}">{% csrf_token %}<button type="submit" class="btn btn-success">Approve &amp; Publish</button></form>
+      <form method="post" action="{% url 'automation:reject_submission' sub.pk %}">{% csrf_token %}<button type="submit" class="btn btn-danger">Reject</button></form>
+    </div>
+  </div>
+  <div style="max-width:780px;margin:0 auto">
+    <div style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:20px;margin-bottom:32px;font-size:14px">
+      <strong>Author:</strong> {{ sub.author_name }} ({{ sub.author_email }})<br>
+      {% if sub.author_bio %}<strong>Bio:</strong> {{ sub.author_bio }}<br>{% endif %}
+      <strong>Category:</strong> {{ sub.category }} | <strong>Tags:</strong> {{ sub.tags }}
+    </div>
+    <h1 style="font-size:36px;font-weight:800;margin-bottom:16px">{{ sub.title }}</h1>
+    <p style="font-size:18px;color:#6b7280;margin-bottom:24px">{{ sub.excerpt }}</p>
+    <div class="prose">{{ sub.body|safe }}</div>
+  </div>
+</div>
+{% endblock %}

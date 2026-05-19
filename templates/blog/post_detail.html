@@ -1,0 +1,168 @@
+{% extends 'base.html' %}
+{% load static humanize %}
+
+{% block title %}{{ post.title }} — MLPulse{% endblock %}
+{% block meta_description %}{{ post.meta_description|default:post.excerpt }}{% endblock %}
+
+{% block content %}
+<article class="article-page">
+  <div class="container">
+
+    <!-- HEADER -->
+    <header class="article-header">
+      {% if post.category %}
+      <a href="{{ post.category.get_absolute_url }}" class="category-badge" style="background:{{ post.category.color }}20;color:{{ post.category.color }}">
+        {{ post.category.name }}
+      </a>
+      {% endif %}
+      <h1 class="article-title">{{ post.title }}</h1>
+      <p class="article-excerpt">{{ post.excerpt }}</p>
+
+      <div class="article-meta">
+        {% if post.author %}
+        <a href="{% url 'accounts:profile' post.author.username %}" class="meta-author">
+          <img src="{{ post.author.get_avatar }}" class="avatar-sm" alt="{{ post.author.username }}">
+          <div>
+            <strong>{{ post.author.get_full_name|default:post.author.username }}</strong>
+            {% if post.author.bio %}<span>{{ post.author.bio|truncatechars:80 }}</span>{% endif %}
+          </div>
+        </a>
+        {% endif %}
+        <div class="meta-info">
+          <span><i class="fa fa-calendar"></i> {{ post.published_at|date:"M j, Y" }}</span>
+          <span><i class="fa fa-clock"></i> {{ post.reading_time }} min read</span>
+          <span><i class="fa fa-eye"></i> {{ post.views|intcomma }} views</span>
+          {% if post.source == 'auto' %}<span class="badge-ai"><i class="fa fa-robot"></i> AI-written</span>{% endif %}
+        </div>
+      </div>
+
+      <!-- Tags -->
+      {% if post.tags.all %}
+      <div class="article-tags">
+        {% for tag in post.tags.all %}
+        <a href="{% url 'blog:tag' tag.slug %}" class="tag">#{{ tag.name }}</a>
+        {% endfor %}
+      </div>
+      {% endif %}
+    </header>
+
+    <!-- COVER IMAGE -->
+    {% if post.cover %}
+    <div class="article-cover">
+      <img src="{{ post.cover }}" alt="{{ post.title }}">
+    </div>
+    {% endif %}
+
+    <!-- BODY -->
+    <div class="article-layout">
+      <div class="article-body prose">
+        {{ post.body|safe }}
+      </div>
+
+      <!-- SIDEBAR -->
+      <aside class="article-sidebar">
+        <div class="sidebar-card">
+          <h4>Related posts</h4>
+          {% for rel in related %}
+          <a href="{{ rel.get_absolute_url }}" class="sidebar-post">
+            <span>{{ rel.title|truncatechars:60 }}</span>
+            <small>{{ rel.reading_time }}m read</small>
+          </a>
+          {% empty %}
+          <p class="text-muted">No related posts yet.</p>
+          {% endfor %}
+        </div>
+
+        {% if post.source_urls %}
+        <div class="sidebar-card">
+          <h4>Sources</h4>
+          {% for url in post.source_urls|slice:":8" %}
+          <a href="{{ url }}" target="_blank" rel="noopener" class="sidebar-source">
+            <i class="fa fa-external-link"></i>
+            {{ url|truncatechars:50 }}
+          </a>
+          {% endfor %}
+        </div>
+        {% endif %}
+      </aside>
+    </div>
+
+    <!-- COMMENTS -->
+    <section class="comments-section" id="comments">
+      <h2>{{ comments|length }} Comment{{ comments|length|pluralize }}</h2>
+
+      {% for comment in comments %}
+      <div class="comment" id="comment-{{ comment.pk }}">
+        <div class="comment-header">
+          {% if comment.author %}
+          <img src="{{ comment.author.get_avatar }}" class="avatar-xs" alt="">
+          <strong>{{ comment.author.get_full_name|default:comment.author.username }}</strong>
+          {% else %}
+          <strong>{{ comment.name|default:"Anonymous" }}</strong>
+          {% endif %}
+          <span class="comment-date">{{ comment.created_at|naturaltime }}</span>
+        </div>
+        <p class="comment-body">{{ comment.body }}</p>
+
+        <button class="reply-btn" data-id="{{ comment.pk }}">Reply</button>
+
+        {% for reply in comment.replies.all %}
+        <div class="comment comment-reply">
+          <div class="comment-header">
+            {% if reply.author %}
+            <img src="{{ reply.author.get_avatar }}" class="avatar-xs" alt="">
+            <strong>{{ reply.author.get_full_name|default:reply.author.username }}</strong>
+            {% else %}
+            <strong>{{ reply.name|default:"Anonymous" }}</strong>
+            {% endif %}
+            <span class="comment-date">{{ reply.created_at|naturaltime }}</span>
+          </div>
+          <p class="comment-body">{{ reply.body }}</p>
+        </div>
+        {% endfor %}
+      </div>
+      {% empty %}
+      <p class="text-muted">Be the first to comment!</p>
+      {% endfor %}
+
+      <!-- COMMENT FORM -->
+      <div class="comment-form-wrap" id="comment-form-wrap">
+        <h3>Leave a comment</h3>
+        <form method="post" action="{{ post.get_absolute_url }}#comments">
+          {% csrf_token %}
+          <input type="hidden" name="parent_id" id="parentId" value="">
+          {% if not user.is_authenticated %}
+          <div class="form-row">
+            <div class="form-group">{{ comment_form.name.label_tag }}{{ comment_form.name }}</div>
+            <div class="form-group">{{ comment_form.email.label_tag }}{{ comment_form.email }}</div>
+          </div>
+          {% endif %}
+          <div class="form-group">
+            <label>Comment</label>
+            {{ comment_form.body }}
+          </div>
+          <button type="submit" class="btn btn-primary">Post comment</button>
+          <button type="button" class="btn btn-outline" id="cancelReply" style="display:none">Cancel reply</button>
+        </form>
+      </div>
+    </section>
+
+  </div>
+</article>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.querySelectorAll('.reply-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.getElementById('parentId').value = btn.dataset.id;
+    document.getElementById('cancelReply').style.display = 'inline-block';
+    document.getElementById('comment-form-wrap').scrollIntoView({behavior:'smooth'});
+  });
+});
+document.getElementById('cancelReply')?.addEventListener('click', () => {
+  document.getElementById('parentId').value = '';
+  document.getElementById('cancelReply').style.display = 'none';
+});
+</script>
+{% endblock %}

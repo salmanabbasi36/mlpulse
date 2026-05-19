@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% load humanize %}
+{% block title %}{{ category.name }} — MLPulse{% endblock %}
+{% block content %}
+<div class="container" style="padding:60px 0 80px">
+  <h1 style="font-size:32px;font-weight:700;margin-bottom:8px">{{ category.name }}</h1>
+  {% if category.description %}<p style="color:#6b7280;margin-bottom:32px">{{ category.description }}</p>{% endif %}
+  <div class="post-grid">
+    {% for post in page_obj %}
+    <article class="post-card">
+      {% if post.cover %}<a href="{{ post.get_absolute_url }}" class="card-image-link"><img src="{{ post.cover }}" class="card-image" loading="lazy" alt="{{ post.title }}"></a>{% endif %}
+      <div class="card-body">
+        <h3 class="card-title"><a href="{{ post.get_absolute_url }}">{{ post.title }}</a></h3>
+        <p class="card-excerpt">{{ post.excerpt|truncatechars:120 }}</p>
+        <div class="card-meta"><span>{{ post.published_at|naturalday }}</span><span class="dot">·</span><span>{{ post.reading_time }}m</span></div>
+      </div>
+    </article>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

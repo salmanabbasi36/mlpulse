@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% load humanize %}
+{% block title %}{{ author.get_full_name|default:author.username }} — MLPulse{% endblock %}
+{% block content %}
+<div class="container" style="padding-top:60px;padding-bottom:80px">
+  <div style="max-width:780px;margin:0 auto">
+    <div style="display:flex;gap:24px;align-items:flex-start;margin-bottom:48px;padding-bottom:32px;border-bottom:1px solid #e5e7eb">
+      <img src="{{ author.get_avatar }}" style="width:80px;height:80px;border-radius:50%;object-fit:cover">
+      <div>
+        <h1 style="font-size:26px;font-weight:700">{{ author.get_full_name|default:author.username }}</h1>
+        {% if author.bio %}<p style="color:#6b7280;margin-top:8px">{{ author.bio }}</p>{% endif %}
+        <div style="display:flex;gap:16px;margin-top:12px;font-size:14px">
+          {% if author.twitter %}<a href="https://twitter.com/{{ author.twitter }}" target="_blank" style="color:#6366f1">Twitter</a>{% endif %}
+          {% if author.github %}<a href="https://github.com/{{ author.github }}" target="_blank" style="color:#6366f1">GitHub</a>{% endif %}
+        </div>
+      </div>
+    </div>
+    <h2 style="font-size:18px;font-weight:700;margin-bottom:24px">Articles ({{ posts|length }})</h2>
+    {% for post in posts %}
+    <article style="padding:20px 0;border-bottom:1px solid #e5e7eb">
+      <a href="{{ post.get_absolute_url }}" style="font-size:18px;font-weight:600">{{ post.title }}</a>
+      <p style="color:#6b7280;font-size:14px;margin-top:6px">{{ post.excerpt|truncatechars:120 }}</p>
+      <p style="font-size:13px;color:#9ca3af;margin-top:6px">{{ post.published_at|naturalday }} · {{ post.reading_time }} min read</p>
+    </article>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

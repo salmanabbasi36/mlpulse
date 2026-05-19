@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+{% block title %}Write for MLPulse{% endblock %}
+{% block content %}
+<div class="container" style="padding-top:60px;padding-bottom:80px">
+  <div style="max-width:780px;margin:0 auto">
+    <h1 style="font-size:36px;font-weight:700;margin-bottom:8px">Write for MLPulse</h1>
+    <p style="color:#6b7280;font-size:18px;margin-bottom:16px">Share your knowledge with the ML/AI/DS community</p>
+    <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:14px 18px;margin-bottom:32px;font-size:14px;color:#166534">
+      <strong>Review process:</strong> All submissions are reviewed before publishing. You will hear back within 48 hours.
+    </div>
+    <form method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+      {% for field in form %}
+      <div class="form-group">
+        {{ field.label_tag }}{{ field }}
+        {% if field.help_text %}<small style="color:#6b7280">{{ field.help_text }}</small>{% endif %}
+        {% for err in field.errors %}<small style="color:#ef4444">{{ err }}</small>{% endfor %}
+      </div>
+      {% endfor %}
+      <button type="submit" class="btn btn-primary" style="margin-top:8px">Submit article</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

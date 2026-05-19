@@ -1,0 +1,103 @@
+{% extends 'base.html' %}
+{% load static humanize %}
+
+{% block content %}
+
+<!-- HERO / FEATURED POST -->
+{% if featured %}
+<section class="hero">
+  <div class="container">
+    <div class="hero-inner">
+      <div class="hero-text">
+        {% if featured.category %}
+        <a href="{{ featured.category.get_absolute_url }}" class="category-badge" style="background:{{ featured.category.color }}20;color:{{ featured.category.color }}">
+          {{ featured.category.name }}
+        </a>
+        {% endif %}
+        <h1 class="hero-title"><a href="{{ featured.get_absolute_url }}">{{ featured.title }}</a></h1>
+        <p class="hero-excerpt">{{ featured.excerpt }}</p>
+        <div class="post-meta">
+          {% if featured.author %}
+          <img src="{{ featured.author.get_avatar }}" class="avatar-xs" alt="">
+          <a href="{% url 'accounts:profile' featured.author.username %}">{{ featured.author.get_full_name|default:featured.author.username }}</a>
+          <span class="dot">·</span>
+          {% endif %}
+          <span>{{ featured.published_at|naturalday }}</span>
+          <span class="dot">·</span>
+          <span>{{ featured.reading_time }} min read</span>
+        </div>
+      </div>
+      {% if featured.cover %}
+      <div class="hero-image">
+        <a href="{{ featured.get_absolute_url }}">
+          <img src="{{ featured.cover }}" alt="{{ featured.title }}">
+        </a>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+<!-- POST GRID -->
+<section class="section">
+  <div class="container">
+    <div class="section-header">
+      <h2 class="section-title">Latest</h2>
+      <a href="{% url 'blog:archive' %}" class="see-all">See all →</a>
+    </div>
+    <div class="post-grid">
+      {% for post in posts %}
+      <article class="post-card">
+        {% if post.cover %}
+        <a href="{{ post.get_absolute_url }}" class="card-image-link">
+          <img src="{{ post.cover }}" alt="{{ post.title }}" class="card-image" loading="lazy">
+        </a>
+        {% endif %}
+        <div class="card-body">
+          {% if post.category %}
+          <a href="{{ post.category.get_absolute_url }}" class="category-badge-sm" style="color:{{ post.category.color }}">
+            {{ post.category.name }}
+          </a>
+          {% endif %}
+          <h3 class="card-title"><a href="{{ post.get_absolute_url }}">{{ post.title }}</a></h3>
+          <p class="card-excerpt">{{ post.excerpt|truncatechars:120 }}</p>
+          <div class="card-meta">
+            {% if post.author %}
+            <img src="{{ post.author.get_avatar }}" class="avatar-xs" alt="">
+            <span>{{ post.author.get_full_name|default:post.author.username }}</span>
+            <span class="dot">·</span>
+            {% endif %}
+            <span>{{ post.published_at|naturalday }}</span>
+            <span class="dot">·</span>
+            <span>{{ post.reading_time }}m</span>
+          </div>
+        </div>
+      </article>
+      {% empty %}
+      <div class="empty-state">
+        <p>No posts yet. Check back soon — the AI is writing!</p>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<!-- NEWSLETTER -->
+<section class="newsletter-section">
+  <div class="container">
+    <div class="newsletter-box">
+      <div class="newsletter-text">
+        <h2>Stay in the pulse</h2>
+        <p>New articles every 4 hours. No spam. Unsubscribe anytime.</p>
+      </div>
+      <form method="post" action="{% url 'blog:newsletter_subscribe' %}" class="newsletter-form">
+        {% csrf_token %}
+        <input type="email" name="email" placeholder="you@example.com" class="newsletter-input" required>
+        <button type="submit" class="btn btn-primary">Subscribe</button>
+      </form>
+    </div>
+  </div>
+</section>
+
+{% endblock %}
