@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% load humanize %}
+{% block title %}#{{ tag.name }} — MLPulse{% endblock %}
+{% block content %}
+<div class="container" style="padding:60px 0 80px">
+  <h1 style="font-size:32px;font-weight:700;margin-bottom:8px">#{{ tag.name }}</h1>
+  <p style="color:#6b7280;margin-bottom:32px">Articles tagged with <strong>{{ tag.name }}</strong></p>
+  <div class="post-grid">
+    {% for post in page_obj %}
+    <article class="post-card">
+      {% if post.cover %}<a href="{{ post.get_absolute_url }}" class="card-image-link"><img src="{{ post.cover }}" class="card-image" loading="lazy" alt="{{ post.title }}"></a>{% endif %}
+      <div class="card-body">
+        {% if post.category %}<a href="{{ post.category.get_absolute_url }}" class="category-badge-sm" style="color:{{ post.category.color }}">{{ post.category.name }}</a>{% endif %}
+        <h3 class="card-title"><a href="{{ post.get_absolute_url }}">{{ post.title }}</a></h3>
+        <p class="card-excerpt">{{ post.excerpt|truncatechars:120 }}</p>
+        <div class="card-meta">
+          {% if post.author %}<img src="{{ post.author.get_avatar }}" class="avatar-xs" alt=""><span>{{ post.author.get_full_name|default:post.author.username }}</span><span class="dot">·</span>{% endif %}
+          <span>{{ post.published_at|naturalday }}</span><span class="dot">·</span><span>{{ post.reading_time }}m</span>
+        </div>
+      </div>
+    </article>
+    {% empty %}
+    <div class="empty-state"><p>No posts with this tag yet.</p></div>
+    {% endfor %}
+  </div>
+  {% if page_obj.has_other_pages %}
+  <div style="display:flex;gap:8px;margin-top:40px;justify-content:center">
+    {% if page_obj.has_previous %}<a href="?page={{ page_obj.previous_page_number }}" class="btn btn-outline">← Previous</a>{% endif %}
+    {% if page_obj.has_next %}<a href="?page={{ page_obj.next_page_number }}" class="btn btn-outline">Next →</a>{% endif %}
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

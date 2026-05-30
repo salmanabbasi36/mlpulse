@@ -130,7 +130,7 @@ def trigger_generation(request):
                 post.tags.add(*tags)
             messages.success(request, f'Post generated: "{post.title}" — ready to preview!')
         else:
-            messages.error(request, 'Generation failed. Check your Gemini API key.')
+            messages.error(request, 'Generation failed. Check your Groq API key.')
     except Exception as e:
         messages.error(request, f'Error: {str(e)}')
 
