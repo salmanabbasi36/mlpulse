@@ -8,11 +8,12 @@ SECRET_KEY = config('SECRET_KEY', default='change-me-in-production')
 DEBUG = config('DEBUG', default=False, cast=bool)
 ALLOWED_HOSTS = [h.strip() for h in config('ALLOWED_HOSTS', default='localhost,127.0.0.1').split(',')]
 
-# Auto-allow Railway and Render domains
+# Auto-allow Railway, Render, and Cloudflare tunnel domains
 if os.environ.get('RAILWAY_ENVIRONMENT') or os.environ.get('RAILWAY_PROJECT_ID'):
     ALLOWED_HOSTS += ['.up.railway.app', '.railway.app']
 if os.environ.get('RENDER'):
     ALLOWED_HOSTS += ['.onrender.com']
+ALLOWED_HOSTS += ['.trycloudflare.com']
 
 CSRF_TRUSTED_ORIGINS = [o.strip() for o in config(
     'CSRF_TRUSTED_ORIGINS',
